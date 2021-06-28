@@ -126,7 +126,7 @@ describe('markdown-it-mfr', function () {
   it('tcplay success', function () {
     renderedHtml = md.render('@[tcplay](fileID=3701925919142100553&appID=1254222330)');
     id = getMfrId(renderedHtml);
-    const str = '<p><video id="' + id + '" preload="auto" playsinline webkit-playsinline x5-playsinline class="tcplay-file"></video><script>window.onload = function () {new TCPlayer("' + id + '", { fileID: "3701925919142100553", appID: "1254222330", width: "640", height: "390", autoplay: false})}; </script></p>\n';
+    const str = '<p><video id="' + id + '" preload="auto" playsinline webkit-playsinline x5-playsinline class="tcplay-file"></video><script>var ' + id + 'player;if(' + id + 'player) ' + id + 'player.dispose();function initTCPlayer(){' + id + 'player = new TCPlayer("' + id + '", { fileID: "3701925919142100553", appID: "1254222330", width: "640", height: "390", autoplay: false})};initTCPlayer(); </script></p>\n';
     console.log('str', str);
     assert.equal(renderedHtml, str);
   });

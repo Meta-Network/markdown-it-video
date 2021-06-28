@@ -201,6 +201,14 @@ function parseParams(search) {
   return ret;
 }
 
+// 从chars中随机生成length长度的字符串
+function randomString(length, chars) {
+  let result = '';
+  let i = length;
+  for (i; i > 0; i -= 1) result += chars[Math.floor(Math.random() * chars.length)];
+  return result;
+}
+
 function tokenizeVideo(md, options) {
   function tokenizeReturn(tokens, idx) {
     const videoID = md.utils.escapeHtml(tokens[idx].videoID);
@@ -226,14 +234,14 @@ function tokenizeVideo(md, options) {
       // videoID：fileID=xxx&amp;appID=2728
       const params = parseParams(tokens[idx].videoID);
 
-      num = Math.random().toString(36).slice(-10); // 生成10个字母数字随机数字
-      return '<video id="' + num + '" preload="auto" playsinline webkit-playsinline x5-playsinline class="tcplay-file"></video><script>' +
-        'window.onload = function () {new TCPlayer("' + num +
+      num = randomString(8, 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ') + Math.random().toString(36).slice(-10); // 8个英文随机字符 + 10个字母数字随机数字,id不能以数字为前缀
+      return '<video id="' + num + '" preload="auto" playsinline webkit-playsinline x5-playsinline class="tcplay-file"></video><script>var ' +
+        num + 'player;if(' + num + 'player) ' + num + 'player.dispose();function initTCPlayer(){' + num + 'player = new TCPlayer("' + num +
         '", { fileID: "' + params.fileID +
         '", appID: "' + params.appID +
         '", width: "' + (options[service].width) +
         '", height: "' + (options[service].height) +
-        '", autoplay: false})}; </script>';
+        '", autoplay: false})};initTCPlayer(); </script>';
     }
 
     return videoID === '' ? '' :
