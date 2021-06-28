@@ -136,6 +136,20 @@ Alternately, you could use the url.
 ```md
 @[osf](https://mfr.osf.io/render?url=https://osf.io/kuvg9/?action=download)
 ```
+#### TCPlayer
+
+腾讯云超级播放器官方使用文档：[https://cloud.tencent.com/document/product/266/14424](https://cloud.tencent.com/document/product/266/14424)。
+假设你的页面已经加载了tcplayer.min.js、hls.min.js和tcplayer.css，这个插件允许你使用TCPlayer嵌入视频，具体版本可参阅官方使用文档。
+
+```md
+@[tcplay](fileID=622828&appID=28192)
+```
+
+is interpreted as
+
+```html
+<p><video id="2ayrktm5q4" preload="auto" playsinline webkit-playsinline x5-playsinline class="tcplay-file"></video><script>window.onload = function () {new TCPlayer("2ayrktm5q4", { fileID: "622828", appID: "28192", width: "640", height: "390", autoplay: false})}; </script></p>
+```
 
 ## Options
 

@@ -7,6 +7,9 @@
     "prefer-destructuring": 0,
     "prefer-template": 0,
     "prefer-arrow-callback": [0],
-    "global-require": 0
+    "global-require": 0,
+    "no-console": "off",
+    "no-continue": "off"
+
   }
 }

@@ -3,6 +3,7 @@
 // Process @[vine](vineVideoID)
 // Process @[prezi](preziID)
 // Process @[osf](guid)
+// Process @[tcplay](fileID、appID)
 
 const ytRegex = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
 function youtubeParser(url) {
@@ -36,7 +37,6 @@ function mfrParser(url) {
   const match = url.match(mfrRegex);
   return match ? match[1] : url;
 }
-
 
 const EMBED_REGEX = /@\[([a-zA-Z].+)]\([\s]*(.*?)[\s]*[)]/im;
 
@@ -74,6 +74,8 @@ function videoEmbed(md, options) {
       videoID = preziParser(videoID);
     } else if (serviceLower === 'osf') {
       videoID = mfrParser(videoID);
+    } else if (serviceLower === 'tcplay') {
+      // videoID = videoID;
     } else if (!options[serviceLower]) {
       return false;
     }
@@ -176,9 +178,27 @@ function videoUrl(service, videoID, url, options) {
         'landing_sign=1kD6c0N6aYpMUS0wxnQjxzSqZlEB8qNFdxtdjYhwSuI';
     case 'osf':
       return 'https://mfr.osf.io/render?url=https://osf.io/' + videoID + '/?action=download';
+    case 'tcplay':
+      return videoID;
     default:
       return service;
   }
+}
+
+// "fileID=1778&appID=bxhs" => { fileID: '1778', appID: 'bxhs' }
+function parseParams(search) {
+  const ret = {};
+  const seg = search.replace(/^\?/, '').split('&');
+  const len = seg.length;
+  let s;
+  for (let i = 0; i < len; i += 1) {
+    if (!seg[i]) {
+      continue;
+    }
+    s = seg[i].split('=');
+    ret[s[0]] = s[1];
+  }
+  return ret;
 }
 
 function tokenizeVideo(md, options) {
@@ -200,6 +220,20 @@ function tokenizeVideo(md, options) {
         '$(document).ready(function () {new mfr.Render("' + num + '", "https://mfr.osf.io/' +
         'render?url=https://osf.io/' + videoID + '/?action=download%26mode=render");' +
         '    }); </script>';
+    } else if (service === 'tcplay' && videoID) {
+      // 不使用格式化过的videoId
+      // tokens[idx].videoID：fileID=xxx&appID=2728
+      // videoID：fileID=xxx&amp;appID=2728
+      const params = parseParams(tokens[idx].videoID);
+
+      num = Math.random().toString(36).slice(-10); // 生成10个字母数字随机数字
+      return '<video id="' + num + '" preload="auto" playsinline webkit-playsinline x5-playsinline class="tcplay-file"></video><script>' +
+        'window.onload = function () {new TCPlayer("' + num +
+        '", { fileID: "' + params.fileID +
+        '", appID: "' + params.appID +
+        '", width: "' + (options[service].width) +
+        '", height: "' + (options[service].height) +
+        '", autoplay: false})}; </script>';
     }
 
     return videoID === '' ? '' :
@@ -220,6 +254,7 @@ const defaults = {
   vine: { width: 600, height: 600, embed: 'simple' },
   prezi: { width: 550, height: 400 },
   osf: { width: '100%', height: '100%' },
+  tcplay: { width: 640, height: 390 },
 };
 
 module.exports = function videoPlugin(md, options) {

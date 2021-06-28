@@ -122,4 +122,12 @@ describe('markdown-it-mfr', function () {
     id = getMfrId(renderedHtml);
     assert.equal(renderedHtml, '<p><div id="' + id + '" class="mfr mfr-file"></div><script>$(document).ready(function () {new mfr.Render("' + id + '", "http://localhost:7778/render?mode=render&amp;url=http://192.168.168.167:5000/y98tn/?action=download%26mode=render%26direct");    }); </script></p>\n');
   });
+
+  it('tcplay success', function () {
+    renderedHtml = md.render('@[tcplay](fileID=3701925919142100553&appID=1254222330)');
+    id = getMfrId(renderedHtml);
+    const str = '<p><video id="' + id + '" preload="auto" playsinline webkit-playsinline x5-playsinline class="tcplay-file"></video><script>window.onload = function () {new TCPlayer("' + id + '", { fileID: "3701925919142100553", appID: "1254222330", width: "640", height: "390", autoplay: false})}; </script></p>\n';
+    console.log('str', str);
+    assert.equal(renderedHtml, str);
+  });
 });
