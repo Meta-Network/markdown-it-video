@@ -4,6 +4,7 @@
 // Process @[prezi](preziID)
 // Process @[osf](guid)
 // Process @[tcplay](fileID、appID)
+// Process @[commonlink](url)
 
 const ytRegex = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
 function youtubeParser(url) {
@@ -74,7 +75,7 @@ function videoEmbed(md, options) {
       videoID = preziParser(videoID);
     } else if (serviceLower === 'osf') {
       videoID = mfrParser(videoID);
-    } else if (serviceLower === 'tcplay') {
+    } else if (serviceLower === 'tcplay' || serviceLower === 'commonlink') {
       // videoID = videoID;
     } else if (!options[serviceLower]) {
       return false;
@@ -179,6 +180,7 @@ function videoUrl(service, videoID, url, options) {
     case 'osf':
       return 'https://mfr.osf.io/render?url=https://osf.io/' + videoID + '/?action=download';
     case 'tcplay':
+    case 'commonlink':
       return videoID;
     default:
       return service;
@@ -242,8 +244,15 @@ function tokenizeVideo(md, options) {
         '", width: "' + (options[service].width) +
         '", height: "' + (options[service].height) +
         '", autoplay: false})};initTCPlayer(); </script>';
+    } else if (service === 'commonlink' && videoID) {
+      const checkVideo = /^(http(s)?:\/\/).*\.(mp4|flv|ogg|avi|mov|wmv)$/;
+      if (videoID.match(checkVideo)) {
+        return '<video width="' + (options[service].width) +
+          '" height="' + (options[service].height) +
+          '" src="' + videoID + '" class="common-link-video" controls>您的浏览器不支持 HTML5 video 标签。</video>';
+      }
+      return videoID;
     }
-
     return videoID === '' ? '' :
       '<div class="embed-responsive embed-responsive-16by9"><iframe class="embed-responsive-item ' +
       service + '-player" type="text/html" width="' + (options[service].width) +
@@ -263,6 +272,7 @@ const defaults = {
   prezi: { width: 550, height: 400 },
   osf: { width: '100%', height: '100%' },
   tcplay: { width: 640, height: 390 },
+  commonlink: { width: 640, height: 390 },
 };
 
 module.exports = function videoPlugin(md, options) {

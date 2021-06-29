@@ -151,6 +151,21 @@ is interpreted as
 <p><video id="2ayrktm5q4" preload="auto" playsinline webkit-playsinline x5-playsinline class="tcplay-file"></video><script>window.onload = function () {new TCPlayer("2ayrktm5q4", { fileID: "622828", appID: "28192", width: "640", height: "390", autoplay: false})}; </script></p>
 ```
 
+#### HTML5 Video
+
+支持普通的视频链接，如 https://xxx/movie.mp4，必须以 http或https开头，以常用的视频扩展名结尾；
+mp4|flv|ogg|avi|mov|wmv
+
+```md
+@[commonlink](https://www.xxx/movie.mp4)
+```
+
+is interpreted as
+
+```html
+<p><video width="640" height="390" src="https://www.xxx/movie.mp4" class="common-link-video" controls>您的浏览器不支持 HTML5 video 标签。</video></p>
+```
+
 ## Options
 
 ```js

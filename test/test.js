@@ -130,4 +130,20 @@ describe('markdown-it-mfr', function () {
     console.log('str', str);
     assert.equal(renderedHtml, str);
   });
+
+  it('commonlink success', function () {
+    renderedHtml = md.render('@[commonlink](https://www.runoob.com/try/demo_source/movie.mp4)');
+    id = getMfrId(renderedHtml);
+    const str = '<p><video width="640" height="390" src="https://www.runoob.com/try/demo_source/movie.mp4" class="common-link-video" controls>您的浏览器不支持 HTML5 video 标签。</video></p>\n';
+    console.log('str', str);
+    assert.equal(renderedHtml, str);
+  });
+
+  it('invalid commonlink', function () {
+    renderedHtml = md.render('@[commonlink](https://www.runoob.com/try/demo_source/movie.jpg)');
+    id = getMfrId(renderedHtml);
+    const str = '<p>https://www.runoob.com/try/demo_source/movie.jpg</p>\n';
+    console.log('str', str);
+    assert.equal(renderedHtml, str);
+  });
 });
