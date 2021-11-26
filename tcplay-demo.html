@@ -1,21 +1,35 @@
 <!doctype html>
 <html lang="en">
 
-  <head>
-    <meta charset="utf-8">
-    <title>tcplayer demo</title>
-    <base href="/">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    
-    <link href="https://cloudcache.tencent-cloud.com/open/qcloud/video/tcplayer/tcplayer.css" rel="stylesheet">
-    <script src="https://imgcache.qq.com/open/qcloud/video/tcplayer/libs/hls.min.0.13.2m.js"></script>
-    <!-- 引入播放器 js 文件 -->
-    <script src="https://imgcache.qq.com/open/qcloud/video/tcplayer/tcplayer.v4.1.min.js"></script>
-  </head>
+<head>
+  <meta charset="utf-8">
+  <title>tcplayer demo</title>
+  <base href="/">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <body>
-    <p><video id="xNytLNnFd40i86x37v" preload="auto" playsinline webkit-playsinline x5-playsinline class="tcplay-file"></video><script>var xNytLNnFd40i86x37vplayer; if(xNytLNnFd40i86x37vplayer) xNytLNnFd40i86x37vplayer.dispose();function initTCPlayer(){xNytLNnFd40i86x37vplayer = new TCPlayer("xNytLNnFd40i86x37v", { fileID: "3701925919142100553", appID: "1254222330", width: "640", height: "390", autoplay: false})};initTCPlayer(); </script></p>
-    <p><video width="640" height="390" src="https://www.runoob.com/try/demo_source/movie.mp4" class="common-link-video" controls>您的浏览器不支持 HTML5 video 标签。</video></p>
-  </body>
+  <link href="https://cloudcache.tencent-cloud.com/open/qcloud/video/tcplayer/tcplayer.css" rel="stylesheet">
+  <script src="https://imgcache.qq.com/open/qcloud/video/tcplayer/libs/hls.min.0.13.2m.js"></script>
+  <!-- 引入播放器 js 文件 -->
+  <script src="https://imgcache.qq.com/open/qcloud/video/tcplayer/tcplayer.v4.1.min.js"></script>
+</head>
+
+<body>
+  <p><video id="xNytLNnFd40i86x37v" preload="auto" playsinline webkit-playsinline x5-playsinline
+      class="tcplay-file"></video>
+    <script>
+      var xNytLNnFd40i86x37vplayer;
+      if (xNytLNnFd40i86x37vplayer) xNytLNnFd40i86x37vplayer.dispose();
+      function initTCPlayer() {
+        xNytLNnFd40i86x37vplayer = new TCPlayer("xNytLNnFd40i86x37v", {
+          fileID: "3701925919142100553",
+          appID: "1254222330", width: "640", height: "390", autoplay: false
+        })
+      };
+      initTCPlayer();
+    </script>
+  </p>
+  <p><video width="640" height="390" src="https://www.runoob.com/try/demo_source/movie.mp4" class="common-link-video"
+      controls>您的浏览器不支持 HTML5 video 标签。</video></p>
+</body>
 
 </html>
