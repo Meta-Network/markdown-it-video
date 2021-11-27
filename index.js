@@ -5,6 +5,7 @@
 // Process @[osf](guid)
 // Process @[tcplay](fileID、appID)
 // Process @[commonlink](url)
+// Process {% videojs "source=url" %}
 
 const ytRegex = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
 function youtubeParser(url) {
@@ -40,6 +41,7 @@ function mfrParser(url) {
 }
 
 const EMBED_REGEX = /@\[([a-zA-Z].+)]\([\s]*(.*?)[\s]*[)]/im;
+const VIDEOJS_REGEX = /{% (videojs) (.+?) %}/gim;
 
 function videoEmbed(md, options) {
   function videoReturn(state, silent) {
@@ -50,12 +52,18 @@ function videoEmbed(md, options) {
     var theState = state;
     const oldPos = state.pos;
 
-    if (state.src.charCodeAt(oldPos) !== 0x40/* @ */ ||
-      state.src.charCodeAt(oldPos + 1) !== 0x5B/* [ */) {
+    if (
+      (state.src.charCodeAt(oldPos) !== 0x40/* @ */ ||
+        state.src.charCodeAt(oldPos + 1) !== 0x5B/* [ */) &&
+      (state.src.charCodeAt(oldPos) !== 0x7B/*  { */ ||
+        state.src.charCodeAt(oldPos + 1) !== 0x25/* % */)
+    ) {
       return false;
     }
 
-    const match = EMBED_REGEX.exec(state.src.slice(state.pos, state.src.length));
+    const matchThing = state.src.slice(state.pos, state.src.length);
+
+    const match = EMBED_REGEX.exec(matchThing) || VIDEOJS_REGEX.exec(matchThing);
 
     if (!match || match.length < 3) {
       return false;
@@ -75,6 +83,8 @@ function videoEmbed(md, options) {
       videoID = preziParser(videoID);
     } else if (serviceLower === 'osf') {
       videoID = mfrParser(videoID);
+    } else if (serviceLower === 'videojs') {
+      // videoID = videoID;
     } else if (serviceLower === 'tcplay' || serviceLower === 'commonlink') {
       // videoID = videoID;
     } else if (!options[serviceLower]) {
@@ -179,6 +189,8 @@ function videoUrl(service, videoID, url, options) {
         'landing_sign=1kD6c0N6aYpMUS0wxnQjxzSqZlEB8qNFdxtdjYhwSuI';
     case 'osf':
       return 'https://mfr.osf.io/render?url=https://osf.io/' + videoID + '/?action=download';
+    case 'videojs':
+      return videoID;
     case 'tcplay':
     case 'commonlink':
       return videoID;
@@ -188,9 +200,9 @@ function videoUrl(service, videoID, url, options) {
 }
 
 // "fileID=1778&appID=bxhs" => { fileID: '1778', appID: 'bxhs' }
-function parseParams(search) {
+function parseParams(search, symbol = '&') {
   const ret = {};
-  const seg = search.replace(/^\?/, '').split('&');
+  const seg = search.replace(/^\?/, '').split(symbol);
   const len = seg.length;
   let s;
   for (let i = 0; i < len; i += 1) {
@@ -244,6 +256,28 @@ function tokenizeVideo(md, options) {
         '", width: "' + (options[service].width) +
         '", height: "' + (options[service].height) +
         '", autoplay: false})};initTCPlayer(); </script>';
+    } else if (service === 'videojs' && videoID) {
+      const unsafeParams = parseParams(tokens[idx].videoID, ' ');
+      const videoJSId = randomString(8, 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ') + Math.random().toString(36).slice(-10);
+      return `<div>
+  <video-js id="${videoJSId}" 
+    class="${md.utils.escapeHtml(options.type || 'vjs-default-skin vjs-16-9')}" 
+    controls 
+    preload="${md.utils.escapeHtml(options.preload || 'auto')}" 
+    width="${md.utils.escapeHtml(options.width || '100%')}" 
+    height="${md.utils.escapeHtml(options.width || '350px')}">
+    <source src="${encodeURI(unsafeParams.source)}" type="${md.utils.escapeHtml(options.type || 'application/x-mpegURL')}">
+  </video-js>
+  <script>
+    const ${videoJSId} = videojs('${videoJSId}', {
+      html5: {
+        hls: {
+          overrideNative: true
+        }
+      }
+    });
+  </script>
+  </div> `;
     } else if (service === 'commonlink' && videoID) {
       const checkVideo = /^(http(s)?:\/\/).*\.(mp4|flv|ogg|avi|mov|wmv)$/;
       if (videoID.match(checkVideo)) {
@@ -272,6 +306,7 @@ const defaults = {
   prezi: { width: 550, height: 400 },
   osf: { width: '100%', height: '100%' },
   tcplay: { width: 640, height: 390 },
+  videojs: { width: 640, height: 390 },
   commonlink: { width: 640, height: 390 },
 };
 
