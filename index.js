@@ -278,7 +278,7 @@ function tokenizeVideo(md, options) {
         preload="${md.utils.escapeHtml(options.preload || 'auto')}" 
         width="${md.utils.escapeHtml(options.width || '100%')}" 
         height="${md.utils.escapeHtml(options.width || '350px')}">
-        <source src="${encodeURI(unsafeParams.source)}" type="${md.utils.escapeHtml(options.type || 'application/x-mpegURL')}">
+        <source src="${encodeURI(unsafeParams.source)}" type="${md.utils.escapeHtml(options.type || 'application/x-mpegURL')}" />
       </video-js>
       <script>
         const ${videoJSId} = videojs('${videoJSId}', {
