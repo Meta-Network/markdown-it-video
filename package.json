@@ -1,7 +1,7 @@
 {
-  "name": "@qinqing3761/markdown-it-video",
-  "version": "1.1.0",
-  "description": "Markdown-it plugin to embed a hosted videos",
+  "name": "markdown-it-videojs",
+  "version": "0.0.1",
+  "description": "Markdown-it plugin to embed a videojs",
   "main": "index.js",
   "scripts": {
     "release": "np",
@@ -9,14 +9,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/qinqing3761/markdown-it-video"
+    "url": "https://github.com/Meta-Network/markdown-it-videojs"
   },
   "author": "brianjgeiger",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/qinqing3761/markdown-it-video/issues"
+    "url": "https://github.com/Meta-Network/markdown-it-videojs/issues"
   },
-  "homepage": "https://github.com/qinqing3761/markdown-it-video",
+  "homepage": "https://github.com/Meta-Network/markdown-it-videojs",
   "keywords": [
     "markdown-it",
     "markdown-it-plugin"
