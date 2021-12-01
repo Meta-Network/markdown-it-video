@@ -40,8 +40,8 @@ function mfrParser(url) {
   return match ? match[1] : url;
 }
 
-const EMBED_REGEX = /@\[([a-zA-Z].+)]\([\s]*(.*?)[\s]*[)]/im;
-const VIDEOJS_REGEX = /{% (videojs) (.+?) %}/gim;
+const EMBED_REGEX = new RegExp(/@\[([a-zA-Z].+)]\([\s]*(.*?)[\s]*[)]/im);
+const VIDEOJS_REGEX = new RegExp(/{% (videojs) (.+?) %}/im);
 
 function videoEmbed(md, options) {
   function videoReturn(state, silent) {
@@ -51,6 +51,14 @@ function videoEmbed(md, options) {
     var videoID;
     var theState = state;
     const oldPos = state.pos;
+    let isVideojs = false;
+
+    function regExClosureFn(regex) {
+      // For the short-circuit operation predecessor logic.
+      // eslint-disable-next-line no-unused-expressions
+      regex.toString() === VIDEOJS_REGEX.toString() ? isVideojs = true : isVideojs = false;
+      return regex;
+    }
 
     if (
       (state.src.charCodeAt(oldPos) !== 0x40/* @ */ ||
@@ -63,7 +71,9 @@ function videoEmbed(md, options) {
 
     const matchThing = state.src.slice(state.pos, state.src.length);
 
-    const match = EMBED_REGEX.exec(matchThing) || VIDEOJS_REGEX.exec(matchThing);
+    // const match = EMBED_REGEX.exec(matchThing) || VIDEOJS_REGEX.exec(matchThing);
+    const match = (regExClosureFn(EMBED_REGEX)).exec(matchThing) ||
+      (regExClosureFn(VIDEOJS_REGEX)).exec(matchThing);
 
     if (!match || match.length < 3) {
       return false;
@@ -105,7 +115,7 @@ function videoEmbed(md, options) {
     //
     if (!silent) {
       theState.pos = serviceStart;
-      theState.service = theState.src.slice(serviceStart, serviceEnd);
+      theState.service = isVideojs ? 'videojs' : theState.src.slice(serviceStart, serviceEnd);
       const newState = new theState.md.inline.State(service, theState.md, theState.env, []);
       newState.md.inline.tokenize(newState);
 
@@ -115,8 +125,10 @@ function videoEmbed(md, options) {
       token.url = match[2];
       token.level = theState.level;
     }
-
-    theState.pos += theState.src.indexOf(')', theState.pos);
+    // idont know what this is for
+    // but it works...
+    // TODO: research this.
+    theState.pos += isVideojs ? 100 : theState.src.indexOf(')', theState.pos);
     return true;
   }
 
@@ -259,25 +271,26 @@ function tokenizeVideo(md, options) {
     } else if (service === 'videojs' && videoID) {
       const unsafeParams = parseParams(tokens[idx].videoID, ' ');
       const videoJSId = randomString(8, 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ') + Math.random().toString(36).slice(-10);
-      return `<div>
-  <video-js id="${videoJSId}" 
-    class="${md.utils.escapeHtml(options.type || 'vjs-default-skin vjs-16-9')}" 
-    controls 
-    preload="${md.utils.escapeHtml(options.preload || 'auto')}" 
-    width="${md.utils.escapeHtml(options.width || '100%')}" 
-    height="${md.utils.escapeHtml(options.width || '350px')}">
-    <source src="${encodeURI(unsafeParams.source)}" type="${md.utils.escapeHtml(options.type || 'application/x-mpegURL')}">
-  </video-js>
-  <script>
-    const ${videoJSId} = videojs('${videoJSId}', {
-      html5: {
-        hls: {
-          overrideNative: true
-        }
-      }
-    });
-  </script>
-  </div> `;
+      const result = `<div>
+      <video-js id="${videoJSId}" 
+        class="${md.utils.escapeHtml(options.type || 'vjs-default-skin vjs-16-9')}" 
+        controls 
+        preload="${md.utils.escapeHtml(options.preload || 'auto')}" 
+        width="${md.utils.escapeHtml(options.width || '100%')}" 
+        height="${md.utils.escapeHtml(options.width || '350px')}">
+        <source src="${encodeURI(unsafeParams.source)}" type="${md.utils.escapeHtml(options.type || 'application/x-mpegURL')}">
+      </video-js>
+      <script>
+        const ${videoJSId} = videojs('${videoJSId}', {
+          html5: {
+            hls: {
+              overrideNative: true
+            }
+          }
+        });
+      </script>
+      </div> `;
+      return result;
     } else if (service === 'commonlink' && videoID) {
       const checkVideo = /^(http(s)?:\/\/).*\.(mp4|flv|ogg|avi|mov|wmv)$/;
       if (videoID.match(checkVideo)) {
